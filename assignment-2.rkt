@@ -46,7 +46,7 @@
     [(string=? ke "6") (make-loopstate (loopstate-s1 x) (loopstate-s2 x) (loopstate-s3 x) (loopstate-s4 x) (loopstate-s5 x) (if (string=? (loopstate-s6 x) "solid") "outline" "solid") (loopstate-s7 x) (loopstate-s8 x) (loopstate-s9 x))]
     [(string=? ke "7") (make-loopstate (loopstate-s1 x) (loopstate-s2 x) (loopstate-s3 x) (loopstate-s4 x) (loopstate-s5 x) (loopstate-s6 x) (if (string=? (loopstate-s7 x) "solid") "outline" "solid") (loopstate-s8 x) (loopstate-s9 x))]
     [(string=? ke "8") (make-loopstate (loopstate-s1 x) (loopstate-s2 x) (loopstate-s3 x) (loopstate-s4 x) (loopstate-s5 x) (loopstate-s6 x) (loopstate-s7 x) (if (string=? (loopstate-s8 x) "solid") "outline" "solid") (loopstate-s9 x))]
-    [else (make-loopstate (loopstate-s1 x) (loopstate-s2 x) (loopstate-s3 x) (loopstate-s4 x) (loopstate-s5 x) (loopstate-s6 x) (loopstate-s7 x) (loopstate-s8) (loopstate-s9 x))]
+    [else (make-loopstate (loopstate-s1 x) (loopstate-s2 x) (loopstate-s3 x) (loopstate-s4 x) (loopstate-s5 x) (loopstate-s6 x) (loopstate-s7 x) (loopstate-s8 x) (loopstate-s9 x))]
     )
   )
 ;loop state incrementer
