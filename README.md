@@ -11,10 +11,10 @@ col is number of column
 square side is 50 pixels
 20 pixels between squares
 
-(define slength 50)
-(define space 20)
-(define world-height 680)
-(define world-width 580)
+(define slength 50)\n
+(define space 20)\n
+(define world-height 680)\n
+(define world-width 580)\n
 
 Draw-stuff: Grant
 Mouse-stuff: Chin + Joel
