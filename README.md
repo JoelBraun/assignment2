@@ -19,4 +19,6 @@ Mouse-stuff: Chin + Joel
 Tick: Nick
 Making Templates: Joel
 
+Chin: changing values in structures and returning new world
+Joel: Determining location of mouse cursor click
 
