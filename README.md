@@ -8,8 +8,8 @@ World is (make-world (array time tempo col))
 time is in ticks
 tempo is number of tiks before advancing a col
 col is number of column
-square side is 50 pixels
-20 pixels between squares
+square side is 75 pixels
+
 
 (define slength 50)
 (define space 20)
