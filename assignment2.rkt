@@ -31,7 +31,7 @@
 
 ; grid -> image
 (define (drawfn grid) 
-  (above (colrender (grid-c0 grid))
+  (beside (colrender (grid-c0 grid))
          (colrender (grid-c1 grid))
          (colrender (grid-c2 grid))
          (colrender (grid-c3 grid))
@@ -43,7 +43,7 @@
 
 ; List -> image
 (define (colrender collist) 
-  (beside (button (list-ref collist 0))
+  (above (button (list-ref collist 0))
           (button (list-ref collist 1))
           (button (list-ref collist 2))
           (button (list-ref collist 3))
