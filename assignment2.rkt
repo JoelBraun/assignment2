@@ -26,7 +26,22 @@
   (place-image/align (drawfn (world-grid world))
                      0 0
                      "left" "top"
-                     (empty-scene 1000 (* 75 9))))
+                      (place-image (pause-button (world-playing? world))
+                                  800 100
+                                  (empty-scene 1000 (* 75 9)))))
+
+(define pausebars
+  (overlay/offset (rectangle 20 70 'solid 'red)
+                  30 0 (rectangle 20 70 'solid 'red)))
+
+
+; Boolean -> image
+(define (pause-button bool)
+  (place-image
+   (cond [bool (rotate 270 (isosceles-triangle 70 35 'solid 'green))]
+         [else pausebars])
+   50 50
+   (square 100 'solid 'black)))
 
 
 ; grid -> image
