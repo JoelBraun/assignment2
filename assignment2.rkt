@@ -113,45 +113,37 @@
 
 (define ps (make-pstream))
 
-(define sil (silence 1))
+;one frame of silence, played
+(define sil (silence 100))
 
+;the default number of ticks per beat
 (define tempo 20)
 
-(define play-time (round(s (/ tempo 20))))
-
-(define sound8 (make-tone 261.63 .125 play-time))
-(define sound7 (make-tone 293.66 .125 play-time))
-(define sound6 (make-tone 329.63 .125 play-time))
-(define sound5 (make-tone 349.23 .125 play-time))
-(define sound4 (make-tone 392.00 .125 play-time))
-(define sound3 (make-tone 440.00 .125 play-time))
-(define sound2 (make-tone 493.88 .125 play-time))
-(define sound1 (make-tone 523.25 .125 play-time))
 
 ;called by tock function, determines which sounds to play when it is time t play a column
-(define (sound-col col)
+(define (sound-col col w)
   (rs-overlay* (list
-                (if (list-ref col 0) sound1 sil)
-                (if (list-ref col 1) sound2 sil)
-                (if (list-ref col 2) sound3 sil)
-                (if (list-ref col 3) sound4 sil)
-                (if (list-ref col 4) sound5 sil)
-                (if (list-ref col 5) sound6 sil)
-                (if (list-ref col 6) sound7 sil)
-                (if (list-ref col 7) sound8 sil))))
+                (if (list-ref col 0) (make-tone 523.25 .125 (round(s (/ (world-tempo w) 20)))) sil)
+                (if (list-ref col 1) (make-tone 493.88 .125 (round(s (/ (world-tempo w) 20)))) sil)
+                (if (list-ref col 2) (make-tone 440.00 .125 (round(s (/ (world-tempo w) 20)))) sil)
+                (if (list-ref col 3) (make-tone 392.00 .125 (round(s (/ (world-tempo w) 20)))) sil)
+                (if (list-ref col 4) (make-tone 349.23 .125 (round(s (/ (world-tempo w) 20)))) sil)
+                (if (list-ref col 5) (make-tone 329.63 .125 (round(s (/ (world-tempo w) 20)))) sil)
+                (if (list-ref col 6) (make-tone 293.66 .125 (round(s (/ (world-tempo w) 20)))) sil)
+                (if (list-ref col 7) (make-tone 261.63 .125 (round(s (/ (world-tempo w) 20)))) sil))))
 ;tock function
 (define (tock w)(cond
                    [(not (world-playing? w)) w]
                    [(< (world-tick w) (world-tempo w)) (make-world (world-grid w) (world-col w) (+ (world-tick w) 1) (world-tempo w) true)]
                    [(= (world-tick w) (world-tempo w)) (cond
-                       [(= (world-col w) 0) (both (pstream-play ps (sound-col (grid-c0 (world-grid w)))) (make-world (world-grid w) (if (< (world-col w) 7) (+ (world-col w) 1) 0) 0 (world-tempo w) true))]
-                       [(= (world-col w) 1) (both (pstream-play ps (sound-col (grid-c1 (world-grid w)))) (make-world (world-grid w) (if (< (world-col w) 7) (+ (world-col w) 1) 0) 0 (world-tempo w) true))]
-                       [(= (world-col w) 2) (both (pstream-play ps (sound-col (grid-c2 (world-grid w)))) (make-world (world-grid w) (if (< (world-col w) 7) (+ (world-col w) 1) 0) 0 (world-tempo w) true))]
-                       [(= (world-col w) 3) (both (pstream-play ps (sound-col (grid-c3 (world-grid w)))) (make-world (world-grid w) (if (< (world-col w) 7) (+ (world-col w) 1) 0) 0 (world-tempo w) true))]
-                       [(= (world-col w) 4) (both (pstream-play ps (sound-col (grid-c4 (world-grid w)))) (make-world (world-grid w) (if (< (world-col w) 7) (+ (world-col w) 1) 0) 0 (world-tempo w) true))]
-                       [(= (world-col w) 5) (both (pstream-play ps (sound-col (grid-c5 (world-grid w)))) (make-world (world-grid w) (if (< (world-col w) 7) (+ (world-col w) 1) 0) 0 (world-tempo w) true))]
-                       [(= (world-col w) 6) (both (pstream-play ps (sound-col (grid-c6 (world-grid w)))) (make-world (world-grid w) (if (< (world-col w) 7) (+ (world-col w) 1) 0) 0 (world-tempo w) true))]
-                       [(= (world-col w) 7) (both (pstream-play ps (sound-col (grid-c7 (world-grid w)))) (make-world (world-grid w) (if (< (world-col w) 7) (+ (world-col w) 1) 0) 0 (world-tempo w) true))]
+                       [(= (world-col w) 0) (both (pstream-play ps (sound-col (grid-c0 (world-grid w)) w)) (make-world (world-grid w) (+ (world-col w) 1) 0 (world-tempo w) true))]
+                       [(= (world-col w) 1) (both (pstream-play ps (sound-col (grid-c1 (world-grid w)) w)) (make-world (world-grid w) (+ (world-col w) 1) 0 (world-tempo w) true))]
+                       [(= (world-col w) 2) (both (pstream-play ps (sound-col (grid-c2 (world-grid w)) w)) (make-world (world-grid w) (+ (world-col w) 1) 0 (world-tempo w) true))]
+                       [(= (world-col w) 3) (both (pstream-play ps (sound-col (grid-c3 (world-grid w)) w)) (make-world (world-grid w) (+ (world-col w) 1) 0 (world-tempo w) true))]
+                       [(= (world-col w) 4) (both (pstream-play ps (sound-col (grid-c4 (world-grid w)) w)) (make-world (world-grid w) (+ (world-col w) 1) 0 (world-tempo w) true))]
+                       [(= (world-col w) 5) (both (pstream-play ps (sound-col (grid-c5 (world-grid w)) w)) (make-world (world-grid w) (+ (world-col w) 1) 0 (world-tempo w) true))]
+                       [(= (world-col w) 6) (both (pstream-play ps (sound-col (grid-c6 (world-grid w)) w)) (make-world (world-grid w) (+ (world-col w) 1) 0 (world-tempo w) true))]
+                       [(= (world-col w) 7) (both (pstream-play ps (sound-col (grid-c7 (world-grid w)) w)) (make-world (world-grid w) 0 0 (world-tempo w) true))]
                    )]
                    ))
 
