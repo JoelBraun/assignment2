@@ -1,86 +1,6 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname joelassignment2withlists) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ())))
-;Including required libraries, and the infamous both function
-(require 2htdp/image)
-(require 2htdp/universe)
-(require rsound)
-(require rsound/piano-tones)
-(define (both a b) b)
-
-;plays a sound based on list lookup
-(define (playsnd x) 
-  (cond
-    [(= x 0) (play (piano-tone 69))]
-    [(= x 1) (play (piano-tone 70))]
-    [(= x 2) (play (piano-tone 71))]
-    [(= x 3) (play (piano-tone 72))]
-    [(= x 4) (play (piano-tone 73))]
-    [(= x 5) (play (piano-tone 74))]
-    [(= x 6) (play (piano-tone 75))]
-    [(= x 7) (play (piano-tone 76))]
-    ))
-;iterates through lists to determine 
-(define (fortestsub y x) (if (= (list-ref y x ) 1) (playsnd x) (silence 100)))
-(define (fortest y) 
-  (for-each (lambda (i) (fortestsub y i)) '(0 1 2 3 4 5 6 7) )
-  )
-;Initial function definitions
-(define (tickfn w) 
-  (cond
-    [(= (modulo (world-time w) 1) 0) (both (fortest (array-c1 (world-grid w))) (make-world (world-grid w) (+ (world-time w) 1)))]
-    [(= (modulo (world-time w) 2) 0) (both (fortest (array-c2 (world-grid w))) (make-world (world-grid w) (+ (world-time w) 1)))]
-    [(= (modulo (world-time w) 3) 0) (both (fortest (array-c3 (world-grid w))) (make-world (world-grid w) (+ (world-time w) 1)))]
-    [(= (modulo (world-time w) 4) 0) (both (fortest (array-c4 (world-grid w))) (make-world (world-grid w) (+ (world-time w) 1)))]
-    [(= (modulo (world-time w) 5) 0) (both (fortest (array-c5 (world-grid w))) (make-world (world-grid w) (+ (world-time w) 1)))]
-    [(= (modulo (world-time w) 6) 0) (both (fortest (array-c6 (world-grid w))) (make-world (world-grid w) (+ (world-time w) 1)))]
-    [(= (modulo (world-time w) 7) 0) (both (fortest (array-c7 (world-grid w))) (make-world (world-grid w) (+ (world-time w) 1)))]
-    [(= (modulo (world-time w) 8) 0) (both (fortest (array-c8 (world-grid w))) (make-world (world-grid w) (+ (world-time w) 1)))]
-    [else w]
-  )
-  )
-
-;drawfn pasted in
-
-(define (button filled?)
-  (if (= 1 filled?) (overlay (square 73 'solid 'red)
-                       (square 75 'solid 'black))
-      (square 75 'outline 'black)))
-
-
-; world -> image
-(define (renderfn world)
-  (place-image/align (drawfn world)
-                     0 0
-                     "left" "top"
-                     (empty-scene (* 75 8) (* 75 8))))
-
-
-; grid -> image
-(define (drawfn world) 
-  (beside (colrender (array-c1 (world-grid world)))
-         (colrender (array-c2 (world-grid world)))
-         (colrender (array-c3 (world-grid world)))
-         (colrender (array-c4 (world-grid world)))
-         (colrender (array-c5 (world-grid world)))
-         (colrender (array-c6 (world-grid world)))
-         (colrender (array-c7 (world-grid world)))
-         (colrender (array-c8 (world-grid world)))))
-
-
-; List -> image
-(define (colrender collist) 
-  (above (button (list-ref collist 0))
-          (button (list-ref collist 1))
-          (button (list-ref collist 2))
-          (button (list-ref collist 3))
-          (button (list-ref collist 4))
-          (button (list-ref collist 5))
-          (button (list-ref collist 6))
-          (button (list-ref collist 7))))
-
-
-
+#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname on-mouse) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ())))
 (define (lookup x) ;finds column/row event occurs in
   (cond
   [(and (<= x 75) (>= x 0)) 0]
@@ -95,7 +15,7 @@
   ))
 
 (define (rev-vals x) ;reverses column values between true and false
-  (if (= x 0) 1 0))
+  (not x))
 
 (define (write-col ls pos)
   (cond
@@ -126,11 +46,3 @@
     [(string=? evt "button-down") (write-world w x y)]
     [else w]
     ))
-(define-struct world (grid time))
-(define-struct array (c1 c2 c3 c4 c5 c6 c7 c8))
-(define column (list 0 0 0 0 0 0 0 0))
-(big-bang (make-world (make-array column column column column column column column column) 1)
-          [to-draw renderfn]
-          [on-mouse mousefn]
-          [on-tick tickfn (/ 1 8)]
-          )
