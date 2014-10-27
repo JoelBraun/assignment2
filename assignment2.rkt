@@ -7,7 +7,6 @@
 (require rsound)
 (define (both a b) b)
 
-
 ;Draw Function
 ; Draws 8x8 grid with squares filled in marked by the world
 ; world -> image
@@ -18,7 +17,6 @@
                        (square 75 'solid 'black))
       (square 75 'outline 'black)))
 
-
 ; world -> image
 (define (renderfn world)
   (place-image/align (drawfn (world-grid world))
@@ -26,12 +24,23 @@
                      "left" "top"
                       (place-image (pause-button (world-playing? world))
                                   800 100
-                                  (empty-scene 1000 (* 75 9)))))
+                                  (place-image (circle 10 'solid 'blue)
+                                  (coldotx (world-col world)) (+ (* 75 8) 30)
+                                  (empty-scene 1000 (* 75 9))))))
+
+(define (coldotx colnum)
+  (cond [(= colnum 1) 37]
+        [(= colnum 2) (+ 37 75)]
+        [(= colnum 3) (+ 37 (* 75 2))]
+        [(= colnum 4) (+ 37 (* 75 3))]
+        [(= colnum 5) (+ 37 (* 75 4))]
+        [(= colnum 6) (+ 37 (* 75 5))]
+        [(= colnum 7) (+ 37 (* 75 6))]
+        [(= colnum 0) (+ 37 (* 75 7))]))
 
 (define pausebars
   (overlay/offset (rectangle 20 70 'solid 'red)
                   30 0 (rectangle 20 70 'solid 'red)))
-
 
 ; Boolean -> image
 (define (pause-button bool)
@@ -71,7 +80,7 @@
 
 (define sil (silence 1))
 
-(define tempo 30)
+(define tempo 14)
 
 (define play-time (round(s (/ tempo 20))))
 
@@ -98,7 +107,7 @@
                 (if (list-ref col 7) sound8 sil))))
 ;tock function
 (define (tock w)(cond
-                   [(not (world-playing? w))(w)]
+                   [(not (world-playing? w)) w]
                    [(< (world-tick w) (world-tempo w)) (make-world (world-grid w) (world-col w) (+ (world-tick w) 1) (world-tempo w) true)]
                    [(= (world-tick w) (world-tempo w)) (cond
                        [(= (world-col w) 0) (both (pstream-play ps (sound-col (grid-c0 (world-grid w)))) (make-world (world-grid w) (if (< (world-col w) 7) (+ (world-col w) 1) 0) 0 (world-tempo w) true))]
@@ -112,33 +121,65 @@
                    )]
                    ))
 
-;(define (mousefn w x y evt) ...)
+(define (lookup x) ;finds column/row event occurs in
+  (cond
+  [(and (<= x 75) (>= x 0)) 0]
+  [(and (<= x 150) (>= x 76)) 1]
+  [(and (<= x 225) (>= x 151)) 2]
+  [(and (<= x 300) (>= x 226)) 3]
+  [(and (<= x 375) (>= x 301)) 4]
+  [(and (<= x 450) (>= x 376)) 5]
+  [(and (<= x 525) (>= x 451)) 6]
+  [(and (<= x 600) (>= x 526)) 7]
+  [(and (<= x 850) (>= x 750)) 8]
+  [else #f]
+  ))
+
+(define (rev-vals x) ;reverses column values between true and false
+  (not x))
+
+(define (write-col ls pos)
+  (cond
+  [(= pos 0) (list (rev-vals (list-ref ls 0)) (list-ref ls 1) (list-ref ls 2) (list-ref ls 3) (list-ref ls 4) (list-ref ls 5) (list-ref ls 6) (list-ref ls 7))]
+  [(= pos 1) (list (list-ref ls 0) (rev-vals (list-ref ls 1)) (list-ref ls 2) (list-ref ls 3) (list-ref ls 4) (list-ref ls 5) (list-ref ls 6) (list-ref ls 7))]
+  [(= pos 2) (list (list-ref ls 0) (list-ref ls 1) (rev-vals (list-ref ls 2)) (list-ref ls 3) (list-ref ls 4) (list-ref ls 5) (list-ref ls 6) (list-ref ls 7))]
+  [(= pos 3) (list (list-ref ls 0) (list-ref ls 1) (list-ref ls 2) (rev-vals (list-ref ls 3)) (list-ref ls 4) (list-ref ls 5) (list-ref ls 6) (list-ref ls 7))]
+  [(= pos 4) (list (list-ref ls 0) (list-ref ls 1) (list-ref ls 2) (list-ref ls 3) (rev-vals (list-ref ls 4)) (list-ref ls 5) (list-ref ls 6) (list-ref ls 7))]
+  [(= pos 5) (list (list-ref ls 0) (list-ref ls 1) (list-ref ls 2) (list-ref ls 3) (list-ref ls 4) (rev-vals (list-ref ls 5)) (list-ref ls 6) (list-ref ls 7))]
+  [(= pos 6) (list (list-ref ls 0) (list-ref ls 1) (list-ref ls 2) (list-ref ls 3) (list-ref ls 4) (list-ref ls 5) (rev-vals (list-ref ls 6)) (list-ref ls 7))]
+  [(= pos 7) (list (list-ref ls 0) (list-ref ls 1) (list-ref ls 2) (list-ref ls 3) (list-ref ls 4) (list-ref ls 5) (list-ref ls 6) (rev-vals (list-ref ls 7)))]
+  [else #f]))
+  
+(define (write-world w x y)
+  (cond
+    [(= (lookup x) 0) (make-world (make-grid (write-col (grid-c0 (world-grid w)) (lookup y)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
+    [(= (lookup x) 1) (make-world (make-grid (grid-c0 (world-grid w)) (write-col (grid-c1 (world-grid w)) (lookup y)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
+    [(= (lookup x) 2) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (write-col (grid-c2 (world-grid w)) (lookup y)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
+    [(= (lookup x) 3) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (write-col (grid-c3 (world-grid w)) (lookup y)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
+    [(= (lookup x) 4) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (write-col (grid-c4 (world-grid w)) (lookup y)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
+    [(= (lookup x) 5) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (write-col (grid-c5 (world-grid w)) (lookup y)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
+    [(= (lookup x) 6) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (write-col (grid-c6 (world-grid w)) (lookup y)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
+    [(= (lookup x) 7) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (write-col (grid-c7 (world-grid w)) (lookup y))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
+    [(and (= (lookup x) 8) (or (= (lookup y) 0) (= (lookup y) 1))) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (not (world-playing? w)))]
+    [(not (lookup x)) w]
+    ))
+(define (mousefn w x y evt) 
+  (cond
+    [(string=? evt "button-down") (write-world w x y)]
+    [else w]
+    ))
   
 (define-struct world (grid col tick tempo playing?))
-
 
 (define-struct grid (c0 c1 c2 c3 c4 c5 c6 c7))
 
 (define INITIAL_COLUMN (list false false false false false false false false))
-;(define INITIAL (make-world (make-grid INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN
- ;                                      INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN)
-  ;                          INITIAL_COLUMN 0 1 true))
-
-(define grid1 (make-grid
-              (list true true false false false false false false)
-              (list false true false false false false false false)
-              (list false false true false false false false false)
-              (list false true false true false false false false)
-              (list false false false false true false false false)
-              (list false true false false true true false false)
-              (list false true false false false false true false)
-              (list true true true true true true true true)
-              ))
-
-(define INITIAL (make-world grid1 0 0 tempo true))
+(define INITIAL (make-world (make-grid INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN                                 
+                                       INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN)
+                          0 0 tempo true))
 
 (big-bang INITIAL
           [to-draw renderfn]
-        ;  [on-mouse mousefn]
+        [on-mouse mousefn]
           [on-tick tock]
           )
