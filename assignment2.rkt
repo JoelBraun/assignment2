@@ -26,7 +26,9 @@
                                   800 100
                                   (place-image (circle 10 'solid 'blue)
                                   (coldotx (world-col world)) (+ (* 75 8) 30)
-                                  (empty-scene 1000 (* 75 9))))))
+                                  (place-image resetbutton
+                                               800 250
+                                  (empty-scene 1000 (* 75 9)))))))
 
 (define (coldotx colnum)
   (cond [(= colnum 1) 37]
@@ -42,11 +44,18 @@
   (overlay/offset (rectangle 20 70 'solid 'red)
                   30 0 (rectangle 20 70 'solid 'red)))
 
+(define resetbutton
+  (place-image (text "RESET" 24 'blue)
+               50 50
+               (square 100 'solid 'red)))
+
 ; Boolean -> image
 (define (pause-button bool)
   (place-image
-   (cond [bool (rotate 270 (isosceles-triangle 70 35 'solid 'green))]
-         [else pausebars])
+   (cond 
+     [bool pausebars]
+     [else (rotate 270 (isosceles-triangle 70 35 'solid 'green))]
+         )
    50 50
    (square 100 'solid 'black)))
 
@@ -131,8 +140,7 @@
   [(and (<= x 450) (>= x 376)) 5]
   [(and (<= x 525) (>= x 451)) 6]
   [(and (<= x 600) (>= x 526)) 7]
-  [(and (<= x 850) (>= x 750)) 8]
-  [else #f]
+  [else 99]
   ))
 
 (define (rev-vals x) ;reverses column values between true and false
@@ -148,10 +156,17 @@
   [(= pos 5) (list (list-ref ls 0) (list-ref ls 1) (list-ref ls 2) (list-ref ls 3) (list-ref ls 4) (rev-vals (list-ref ls 5)) (list-ref ls 6) (list-ref ls 7))]
   [(= pos 6) (list (list-ref ls 0) (list-ref ls 1) (list-ref ls 2) (list-ref ls 3) (list-ref ls 4) (list-ref ls 5) (rev-vals (list-ref ls 6)) (list-ref ls 7))]
   [(= pos 7) (list (list-ref ls 0) (list-ref ls 1) (list-ref ls 2) (list-ref ls 3) (list-ref ls 4) (list-ref ls 5) (list-ref ls 6) (rev-vals (list-ref ls 7)))]
-  [else #f]))
+  [else ls]))
+
+(define (playpauselookup x y)
+  (and (and (<= x 850) (>= x 750)) (and (<= y 150) (>= y 50))))
+(define (resetlookup x y)
+  (and (and (<= x 850) (>= x 750)) (and (<= y 300) (>= y 200))))
   
 (define (write-world w x y)
   (cond
+    [(playpauselookup x y) (make-world (world-grid w) (world-col w) (world-tick w) (world-tempo w) (not (world-playing? w)))]
+    [(resetlookup x y) (make-world (make-grid INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))] 
     [(= (lookup x) 0) (make-world (make-grid (write-col (grid-c0 (world-grid w)) (lookup y)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
     [(= (lookup x) 1) (make-world (make-grid (grid-c0 (world-grid w)) (write-col (grid-c1 (world-grid w)) (lookup y)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
     [(= (lookup x) 2) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (write-col (grid-c2 (world-grid w)) (lookup y)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
@@ -161,7 +176,7 @@
     [(= (lookup x) 6) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (write-col (grid-c6 (world-grid w)) (lookup y)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
     [(= (lookup x) 7) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (write-col (grid-c7 (world-grid w)) (lookup y))) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))]
     [(and (= (lookup x) 8) (or (= (lookup y) 0) (= (lookup y) 1))) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (not (world-playing? w)))]
-    [(not (lookup x)) w]
+    [else w]
     ))
 (define (mousefn w x y evt) 
   (cond
