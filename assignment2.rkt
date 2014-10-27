@@ -12,12 +12,24 @@
 ; world -> image
 
 ; Function for empty/filled button
+; if true, the button is filled, otherwise
+; the button is empty.
 (define (button filled?)
-  (if filled? (overlay (square 73 'solid 'red)
+  (if filled? (overlay (square 74 'solid 'red)
                        (square 75 'solid 'black))
       (square 75 'outline 'black)))
 
+; number -> image
+; Makes a slider depending on what the 
+; tempo of the world is
+(define (temposlider tempo)
+  (above (text "Tempo" 20 'brown)
+         (overlay/offset (circle 10 'solid 'blue)
+                  0 (* 5 (- 14 tempo))
+                  (rectangle 10 150 'solid 'black))))
+
 ; world -> image
+; Draws world from structure given by big bang
 (define (renderfn world)
   (place-image/align (drawfn (world-grid world))
                      0 0
@@ -28,8 +40,14 @@
                                   (coldotx (world-col world)) (+ (* 75 8) 30)
                                   (place-image resetbutton
                                                800 250
-                                  (empty-scene 1000 (* 75 9)))))))
+                                               (place-image (temposlider (world-tempo world))
+                                                            800 500
+                                               (empty-scene 1000 (* 75 9))))))))
 
+; number -> number
+; returns the x value of where the 
+; blue dot should be depending on
+; which column is playing
 (define (coldotx colnum)
   (cond [(= colnum 1) 37]
         [(= colnum 2) (+ 37 75)]
@@ -40,20 +58,24 @@
         [(= colnum 7) (+ 37 (* 75 6))]
         [(= colnum 0) (+ 37 (* 75 7))]))
 
+; image
 (define pausebars
   (overlay/offset (rectangle 20 70 'solid 'red)
                   30 0 (rectangle 20 70 'solid 'red)))
 
+;image
 (define resetbutton
   (place-image (text "RESET" 24 'blue)
                50 50
                (square 100 'solid 'red)))
 
 ; Boolean -> image
+; if handed false, produces pausebars
+; otherwise produces the playing triangle
 (define (pause-button bool)
   (place-image
    (cond 
-     [bool pausebars]
+     [(not bool) pausebars]
      [else (rotate 270 (isosceles-triangle 70 35 'solid 'green))]
          )
    50 50
@@ -61,6 +83,7 @@
 
 
 ; grid -> image
+; Places eight columns next to each other
 (define (drawfn grid) 
   (beside (colrender (grid-c0 grid))
          (colrender (grid-c1 grid))
@@ -73,6 +96,9 @@
 
 
 ; List -> image
+; Produces a column based on the list
+; places a button for each spot on the
+; list.
 (define (colrender collist) 
   (above (button (list-ref collist 0))
           (button (list-ref collist 1))
@@ -82,14 +108,14 @@
           (button (list-ref collist 5))
           (button (list-ref collist 6))
           (button (list-ref collist 7))))
-
+; seconds to frames
 (define (s n)(* n 44100))
 
 (define ps (make-pstream))
 
 (define sil (silence 1))
 
-(define tempo 14)
+(define tempo 20)
 
 (define play-time (round(s (/ tempo 20))))
 
@@ -103,7 +129,6 @@
 (define sound1 (make-tone 523.25 .125 play-time))
 
 ;called by tock function, determines which sounds to play when it is time t play a column
-
 (define (sound-col col)
   (rs-overlay* (list
                 (if (list-ref col 0) sound1 sil)
