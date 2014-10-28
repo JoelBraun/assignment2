@@ -200,6 +200,21 @@
     [(string=? evt "button-down") (write-world w x y)]
     [else w]
     ))
+(define (testtempo x key)
+  (cond
+    [(and (= x 30) (key=? key "down")) 30]
+    [(and (= x 30) (key=? key "30")) (- x 25)]
+    [(key=? key "down") (add1 x)]
+    [(key=? key "up") (sub1 x)]
+    [else x]
+    ))
+
+(define (keyfn w key)
+  (cond
+    [(key=? "down" key) (make-world (world-grid w) (world-col w) (world-tick w) (testtempo (world-tempo w) key) (world-playing? w))]
+    [(key=? "up" key) (make-world (world-grid w) (world-col w) (world-tick w) (testtempo (world-tempo w) key) (world-playing? w))]
+    [else w]
+    ))
   
 (define-struct world (grid col tick tempo playing?))
 
@@ -212,6 +227,7 @@
 
 (big-bang INITIAL
           [to-draw renderfn]
-        [on-mouse mousefn]
+          [on-mouse mousefn]
           [on-tick tock]
+          [on-key keyfn]
           )
