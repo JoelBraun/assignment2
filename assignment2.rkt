@@ -147,7 +147,7 @@
                    )]
                    ))
 
-(define (lookup x) ;finds column/row event occurs in
+(define (lookup x) ;finds column/row mouse event occurs in
   (cond
   [(and (<= x 75) (>= x 0)) 0]
   [(and (<= x 150) (>= x 76)) 1]
@@ -163,7 +163,7 @@
 (define (rev-vals x) ;reverses column values between true and false
   (not x))
 
-(define (write-col ls pos)
+(define (write-col ls pos) ;takes a column and a position in that column, writes a new column with a reversed value in that position while keeping old values
   (cond
   [(= pos 0) (list (rev-vals (list-ref ls 0)) (list-ref ls 1) (list-ref ls 2) (list-ref ls 3) (list-ref ls 4) (list-ref ls 5) (list-ref ls 6) (list-ref ls 7))]
   [(= pos 1) (list (list-ref ls 0) (rev-vals (list-ref ls 1)) (list-ref ls 2) (list-ref ls 3) (list-ref ls 4) (list-ref ls 5) (list-ref ls 6) (list-ref ls 7))]
@@ -175,12 +175,12 @@
   [(= pos 7) (list (list-ref ls 0) (list-ref ls 1) (list-ref ls 2) (list-ref ls 3) (list-ref ls 4) (list-ref ls 5) (list-ref ls 6) (rev-vals (list-ref ls 7)))]
   [else ls]))
 
-(define (playpauselookup x y)
+(define (playpauselookup x y) ;checks for mouse event on the play/pause button
   (and (and (<= x 850) (>= x 750)) (and (<= y 150) (>= y 50))))
-(define (resetlookup x y)
+(define (resetlookup x y) ;checks for mouse event on the reset button
   (and (and (<= x 850) (>= x 750)) (and (<= y 300) (>= y 200))))
   
-(define (write-world w x y)
+(define (write-world w x y) ;creates a new world by recycling previous values and creating new columns as necessary depending on the position of the click
   (cond
     [(playpauselookup x y) (make-world (world-grid w) (world-col w) (world-tick w) (world-tempo w) (not (world-playing? w)))]
     [(resetlookup x y) (make-world (make-grid INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN INITIAL_COLUMN) (world-col w) (world-tick w) (world-tempo w) (world-playing? w))] 
@@ -195,12 +195,14 @@
     [(and (= (lookup x) 8) (or (= (lookup y) 0) (= (lookup y) 1))) (make-world (make-grid (grid-c0 (world-grid w)) (grid-c1 (world-grid w)) (grid-c2 (world-grid w)) (grid-c3 (world-grid w)) (grid-c4 (world-grid w)) (grid-c5 (world-grid w)) (grid-c6 (world-grid w)) (grid-c7 (world-grid w))) (world-col w) (world-tick w) (world-tempo w) (not (world-playing? w)))]
     [else w]
     ))
-(define (mousefn w x y evt) 
+
+(define (mousefn w x y evt) ; Checks for a "button-down" mouse event and then either passes back the world or passes on a new world created using (write-world)
   (cond
     [(string=? evt "button-down") (write-world w x y)]
     [else w]
     ))
-(define (testtempo x key)
+
+(define (testtempo x key) ;tests whether the tempo selected has reached one of the program's bounds. Values for tempo are restricted between 1 and 30. 
   (cond
     [(and (= x 30) (key=? key "down")) 30]
     [(and (= x 1) (key=? key "up")) 1]
@@ -209,7 +211,7 @@
     [else x]
     ))
 
-(define (keyfn w key)
+(define (keyfn w key) ;big bang keyboard function, takes a keypress and creates a new world with an edited tempo using "testtempo" helper function
   (cond
     [(key=? "down" key) (make-world (world-grid w) (world-col w) (world-tick w) (testtempo (world-tempo w) key) (world-playing? w))]
     [(key=? "up" key) (make-world (world-grid w) (world-col w) (world-tick w) (testtempo (world-tempo w) key) (world-playing? w))]
