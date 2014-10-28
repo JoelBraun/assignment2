@@ -123,19 +123,19 @@
 ;called by tock function, determines which sounds to play when it is time t play a column
 (define (sound-col col w)
   (rs-overlay* (list
-                (if (list-ref col 0) (make-tone 523.25 .125 (round(s (/ (world-tempo w) 20)))) sil)
-                (if (list-ref col 1) (make-tone 493.88 .125 (round(s (/ (world-tempo w) 20)))) sil)
-                (if (list-ref col 2) (make-tone 440.00 .125 (round(s (/ (world-tempo w) 20)))) sil)
-                (if (list-ref col 3) (make-tone 392.00 .125 (round(s (/ (world-tempo w) 20)))) sil)
-                (if (list-ref col 4) (make-tone 349.23 .125 (round(s (/ (world-tempo w) 20)))) sil)
-                (if (list-ref col 5) (make-tone 329.63 .125 (round(s (/ (world-tempo w) 20)))) sil)
-                (if (list-ref col 6) (make-tone 293.66 .125 (round(s (/ (world-tempo w) 20)))) sil)
-                (if (list-ref col 7) (make-tone 261.63 .125 (round(s (/ (world-tempo w) 20)))) sil))))
+                (if (list-ref col 0) (make-tone 523.25 .125 (round(s (/ (world-tempo w) 27)))) sil)
+                (if (list-ref col 1) (make-tone 493.88 .125 (round(s (/ (world-tempo w) 27)))) sil)
+                (if (list-ref col 2) (make-tone 440.00 .125 (round(s (/ (world-tempo w) 27)))) sil)
+                (if (list-ref col 3) (make-tone 392.00 .125 (round(s (/ (world-tempo w) 27)))) sil)
+                (if (list-ref col 4) (make-tone 349.23 .125 (round(s (/ (world-tempo w) 27)))) sil)
+                (if (list-ref col 5) (make-tone 329.63 .125 (round(s (/ (world-tempo w) 27)))) sil)
+                (if (list-ref col 6) (make-tone 293.66 .125 (round(s (/ (world-tempo w) 27)))) sil)
+                (if (list-ref col 7) (make-tone 261.63 .125 (round(s (/ (world-tempo w) 27)))) sil))))
 ;tock function
 (define (tock w)(cond
                    [(not (world-playing? w)) w]
                    [(< (world-tick w) (world-tempo w)) (make-world (world-grid w) (world-col w) (+ (world-tick w) 1) (world-tempo w) true)]
-                   [(= (world-tick w) (world-tempo w)) (cond
+                   [(>= (world-tick w) (world-tempo w)) (cond
                        [(= (world-col w) 0) (both (pstream-play ps (sound-col (grid-c0 (world-grid w)) w)) (make-world (world-grid w) (+ (world-col w) 1) 0 (world-tempo w) true))]
                        [(= (world-col w) 1) (both (pstream-play ps (sound-col (grid-c1 (world-grid w)) w)) (make-world (world-grid w) (+ (world-col w) 1) 0 (world-tempo w) true))]
                        [(= (world-col w) 2) (both (pstream-play ps (sound-col (grid-c2 (world-grid w)) w)) (make-world (world-grid w) (+ (world-col w) 1) 0 (world-tempo w) true))]
@@ -203,7 +203,7 @@
 (define (testtempo x key)
   (cond
     [(and (= x 30) (key=? key "down")) 30]
-    [(and (= x 30) (key=? key "30")) (- x 25)]
+    [(and (= x 1) (key=? key "up")) 1]
     [(key=? key "down") (add1 x)]
     [(key=? key "up") (sub1 x)]
     [else x]
