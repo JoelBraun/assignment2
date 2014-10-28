@@ -25,8 +25,8 @@
 (define (temposlider tempo)
   (above (text "Tempo" 20 'brown)
          (overlay/offset (circle 10 'solid 'blue)
-                  0 (* 5 (- 14 tempo))
-                  (rectangle 10 150 'solid 'black))))
+                  0 (* 5 (- 15.5 tempo))
+                  (rectangle 10 168 'solid 'black))))
 
 ; world -> image
 ; Draws world from structure given by big bang
